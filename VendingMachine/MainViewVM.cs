@@ -20,6 +20,9 @@ namespace VendingMachine
             _manager = new PurchaseManager();
             _user = _manager.User;
             _automata = _manager.Automata;
+
+            _user.PropertyChanged += (s, a) => { RaisePropertyChanged(nameof(UserSumm)); };
+            _automata.PropertyChanged += (s, a) => { RaisePropertyChanged(nameof(Credit)); };
             //преобразовать коллекцию в конструкторе
             UserWallet = new ObservableCollection<MoneyVM>(_user.UserWallet.Select(ms => new MoneyVM(ms)));
             //преобразовывать каждый добавленный или удаленный элемент из модели
@@ -30,15 +33,13 @@ namespace VendingMachine
             Watch(_user.UserBuyings, UserBuyings, ub => ub.ProductStack);
   
             //деньги автомата
-            AutomataBank = new ObservableCollection<MoneyVM>(_automata.AutomataBank.Select(a => new MoneyVM(a)));
+            AutomataBank = new ObservableCollection<MoneyVM>(_automata.AutomataBank.Select(a => new MoneyVM(a, _manager)));
             Watch(_automata.AutomataBank, AutomataBank, a => a.MoneyStack);
             //товары автомата
-            ProductsInAutomata = new ObservableCollection<ProductVM>(_automata.ProductsInAutomata.Select(ap => new ProductVM(ap)));
+            ProductsInAutomata = new ObservableCollection<ProductVM>(_automata.ProductsInAutomata.Select(ap => new ProductVM(ap, _manager)));
             Watch(_automata.ProductsInAutomata, ProductsInAutomata, p => p.ProductStack);
             //деньги автомата
 
-            _user.PropertyChanged += (s, a) => { RaisePropertyChanged(nameof(UserSumm)); };
-            _automata.PropertyChanged += (s, a) => { RaisePropertyChanged(nameof(Credit)); };
 
         }
         public int UserSumm => _user.UserSumm;
@@ -55,8 +56,8 @@ namespace VendingMachine
   (ReadOnlyObservableCollection<T> collToWatch, ObservableCollection<T2> collToUpdate, Func<T2, object> modelProperty)
         {
             ((INotifyCollectionChanged)collToWatch).CollectionChanged += (s, a) => {
-                if (a.NewItems?.Count == 1) collToUpdate.Add((T2)Activator.CreateInstance(typeof(T2), (T)a.NewItems[0]));
-                if (a.OldItems?.Count == 1) collToUpdate.Remove(collToUpdate.First(mv => modelProperty(mv) == a.OldItems[0]));
+                if (a.NewItems?.Count == 1) collToUpdate.Add((T2)Activator.CreateInstance(typeof(T2), (T)a.NewItems[0], null));
+                if (a.OldItems?.Count == 1) collToUpdate.Remove(collToUpdate.First(mv => modelProperty(mv) == a.NewItems[0]));
             };
         }
     }
@@ -87,11 +88,12 @@ namespace VendingMachine
         public MoneyVM(MoneyStack moneyStack, PurchaseManager manager = null)
         {
             MoneyStack = moneyStack;
-            if (manager != null) //по умолчанию Null, если же нет, то тогда задаем DelegateCommand
+            moneyStack.PropertyChanged += (s, a) => { RaisePropertyChanged(nameof(Amount)); };
+
+            if (manager != null)
                 InsertCommand = new DelegateCommand(() => {
                     manager.InsertMoney(MoneyStack.Banknote);
                 });
-            moneyStack.PropertyChanged += (s, a) => { RaisePropertyChanged(nameof(Amount)); };
         }
         public Visibility IsInsertVisible => InsertCommand == null ? Visibility.Collapsed : Visibility.Visible;
         public DelegateCommand InsertCommand { get; }

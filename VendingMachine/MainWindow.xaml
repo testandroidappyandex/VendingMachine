@@ -21,7 +21,6 @@
         <DataTemplate DataType="{x:Type local:MoneyVM}">
             <StackPanel Orientation="Horizontal">
                 <Button Visibility="{Binding IsInsertVisible}" Command="{Binding InsertCommand}">+</Button>
-                <Image Width="32" Height="32" Source="{Binding Icon}"></Image>
                 <Label Content="{Binding Name}"/>
                 <Label Content="{Binding Amount}"/>
             </StackPanel>
