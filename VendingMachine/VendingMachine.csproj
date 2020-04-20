@@ -122,5 +122,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\VendingMachine.Model\VendingMachine.Model.csproj">
+      <Project>{6895B592-67A3-4839-940C-0FC31C5D636A}</Project>
+      <Name>VendingMachine.Model</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
