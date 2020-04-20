@@ -43,6 +43,8 @@
   <ItemGroup>
     <Compile Include="Banknote.cs" />
     <Compile Include="MoneyStack.cs" />
+    <Compile Include="Product.cs" />
+    <Compile Include="ProductStack.cs" />
     <Compile Include="User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

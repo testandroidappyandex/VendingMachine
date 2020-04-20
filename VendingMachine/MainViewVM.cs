@@ -20,10 +20,11 @@ namespace VendingMachine
             //преобразовать коллекцию в конструкторе
             UserWallet = new ObservableCollection<MoneyVM>(_user.UserWallet.Select(ms => new MoneyVM(ms)));
             //преобразовывать каждый добавленный или удаленный элемент из модели
-            ((INotifyCollectionChanged)_user.UserWallet).CollectionChanged += (s, a) => {
-                if (a.NewItems?.Count == 1) UserWallet.Add(new MoneyVM(a.NewItems[0] as MoneyStack));
-                if (a.OldItems?.Count == 1) UserWallet.Remove(UserWallet.First(mv => mv.MoneyStack == a.OldItems[0]));
-            };
+            Watch(_user.UserWallet, UserWallet, um => um.MoneyStack);
+
+            //покупки пользователя
+            UserBuyings = new ObservableCollection<ProductVM>(_user.UserBuyings.Select(ub => new ProductVM(ub)));
+            Watch(_user.UserBuyings, UserBuyings, ub => ub.ProductStack);
         }
         public int UserSumm => _user.UserSumm;
         private User _user;
@@ -33,14 +34,29 @@ namespace VendingMachine
         public int Credit { get; }
         public ReadOnlyObservableCollection<MoneyVM> AutomataBank { get; }
         public ReadOnlyObservableCollection<ProductVM> ProductsInAutomata { get; }
+
+        private static void Watch<T, T2>
+  (ReadOnlyObservableCollection<T> collToWatch, ObservableCollection<T2> collToUpdate, Func<T2, object> modelProperty)
+        {
+            ((INotifyCollectionChanged)collToWatch).CollectionChanged += (s, a) => {
+                if (a.NewItems?.Count == 1) collToUpdate.Add((T2)Activator.CreateInstance(typeof(T2), (T)a.NewItems[0]));
+                if (a.OldItems?.Count == 1) collToUpdate.Remove(collToUpdate.First(mv => modelProperty(mv) == a.OldItems[0]));
+            };
+        }
     }
     public class ProductVM
     {
-        public Visibility IsBuyVisible { get; }
+        public ProductStack ProductStack { get; }
+        public ProductVM(ProductStack productStack)
+        {
+            ProductStack = productStack;
+        }
+        public Visibility IsBuyVisible => BuyCommand == null ? Visibility.Collapsed : Visibility.Visible;
         public DelegateCommand BuyCommand { get; }
-        public string Name { get; }
-        public string Price { get; }
-        public int Amount { get; }
+        public string Name => ProductStack.Product.Name;
+        public string Price => $"({ProductStack.Product.Price} руб.)";
+        public Visibility IsAmountVisible => BuyCommand == null ? Visibility.Collapsed : Visibility.Visible;
+        public int Amount => ProductStack.Amount;
     }
     public class MoneyVM
     {
