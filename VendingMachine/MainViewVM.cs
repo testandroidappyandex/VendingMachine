@@ -25,6 +25,15 @@ namespace VendingMachine
             //покупки пользователя
             UserBuyings = new ObservableCollection<ProductVM>(_user.UserBuyings.Select(ub => new ProductVM(ub)));
             Watch(_user.UserBuyings, UserBuyings, ub => ub.ProductStack);
+            _automata = new Automata();
+            //деньги автомата
+            AutomataBank = new ObservableCollection<MoneyVM>(_automata.AutomataBank.Select(a => new MoneyVM(a)));
+            Watch(_automata.AutomataBank, AutomataBank, a => a.MoneyStack);
+            //товары автомата
+            ProductsInAutomata = new ObservableCollection<ProductVM>(_automata.ProductsInAutomata.Select(ap => new ProductVM(ap)));
+            Watch(_automata.ProductsInAutomata, ProductsInAutomata, p => p.ProductStack);
+            //деньги автомата
+
         }
         public int UserSumm => _user.UserSumm;
         private User _user;
@@ -32,8 +41,9 @@ namespace VendingMachine
         public ObservableCollection<ProductVM> UserBuyings { get; }
         public DelegateCommand GetChange { get; }
         public int Credit { get; }
-        public ReadOnlyObservableCollection<MoneyVM> AutomataBank { get; }
-        public ReadOnlyObservableCollection<ProductVM> ProductsInAutomata { get; }
+        public ObservableCollection<MoneyVM> AutomataBank { get; }
+        public ObservableCollection<ProductVM> ProductsInAutomata { get; }
+        private Automata _automata;
 
         private static void Watch<T, T2>
   (ReadOnlyObservableCollection<T> collToWatch, ObservableCollection<T2> collToUpdate, Func<T2, object> modelProperty)
