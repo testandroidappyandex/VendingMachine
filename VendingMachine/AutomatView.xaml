@@ -16,6 +16,7 @@
             <Label DockPanel.Dock="Top" Content="Монетоприемник"/>
             <!--Кредит-->
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom">
+                <Button Command="{Binding GetChange}" Margin="5">Вернуть сдачу</Button>
                 <Label Content="Кредит:"/>
                 <Label Content="{Binding Credit}"/>
             </StackPanel>

@@ -11,6 +11,7 @@
         <!-- Обратите внимание на аттрибут DataType (о нём ниже) -->
         <DataTemplate DataType="{x:Type local:ProductVM}">
             <StackPanel Orientation="Horizontal">
+                <Button Visibility="{Binding IsBuyVisible}" Command="{Binding BuyCommand}">+</Button>
                 <Label Content="{Binding Name}"/>
                 <Label FontWeight="DemiBold" Content="{Binding Price}"/>
                 <Label Content="{Binding Amount}"/>
@@ -19,6 +20,7 @@
         <!-- Шаблон данных для денег в кошельке/деньгохранилище -->
         <DataTemplate DataType="{x:Type local:MoneyVM}">
             <StackPanel Orientation="Horizontal">
+                <Button Visibility="{Binding IsInsertVisible}" Command="{Binding InsertCommand}">+</Button>
                 <Image Width="32" Height="32" Source="{Binding Icon}"></Image>
                 <Label Content="{Binding Name}"/>
                 <Label Content="{Binding Amount}"/>
