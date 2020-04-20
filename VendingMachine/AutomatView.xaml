@@ -26,6 +26,6 @@
         <DockPanel Grid.Row="0" Grid.Column="0">
             <Label DockPanel.Dock="Top" Content="Товары"/>
             <ListBox ItemsSource="{Binding ProductsInAutomata}"/>
-        </DockPanel>
+        </DockPanel> 
     </Grid>
 </UserControl>
