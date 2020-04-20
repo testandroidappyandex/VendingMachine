@@ -14,9 +14,12 @@ namespace VendingMachine
 {
     public class MainViewVM : BindableBase
     {
+        private PurchaseManager _manager;
         public MainViewVM()
         {
-            _user = new User();
+            _manager = new PurchaseManager();
+            _user = _manager.User;
+            _automata = _manager.Automata;
             //преобразовать коллекцию в конструкторе
             UserWallet = new ObservableCollection<MoneyVM>(_user.UserWallet.Select(ms => new MoneyVM(ms)));
             //преобразовывать каждый добавленный или удаленный элемент из модели
@@ -25,7 +28,7 @@ namespace VendingMachine
             //покупки пользователя
             UserBuyings = new ObservableCollection<ProductVM>(_user.UserBuyings.Select(ub => new ProductVM(ub)));
             Watch(_user.UserBuyings, UserBuyings, ub => ub.ProductStack);
-            _automata = new Automata();
+  
             //деньги автомата
             AutomataBank = new ObservableCollection<MoneyVM>(_automata.AutomataBank.Select(a => new MoneyVM(a)));
             Watch(_automata.AutomataBank, AutomataBank, a => a.MoneyStack);
@@ -33,6 +36,9 @@ namespace VendingMachine
             ProductsInAutomata = new ObservableCollection<ProductVM>(_automata.ProductsInAutomata.Select(ap => new ProductVM(ap)));
             Watch(_automata.ProductsInAutomata, ProductsInAutomata, p => p.ProductStack);
             //деньги автомата
+
+            _user.PropertyChanged += (s, a) => { RaisePropertyChanged(nameof(UserSumm)); };
+            _automata.PropertyChanged += (s, a) => { RaisePropertyChanged(nameof(Credit)); };
 
         }
         public int UserSumm => _user.UserSumm;
@@ -54,12 +60,19 @@ namespace VendingMachine
             };
         }
     }
-    public class ProductVM
+    public class ProductVM : BindableBase
     {
         public ProductStack ProductStack { get; }
-        public ProductVM(ProductStack productStack)
+        public ProductVM(ProductStack productStack, PurchaseManager manager = null)
         {
             ProductStack = productStack;
+            productStack.PropertyChanged += (s, a) => { RaisePropertyChanged(nameof(Amount)); };
+
+            if (manager != null)
+                BuyCommand = new DelegateCommand(() => {
+                    manager.BuyProduct(ProductStack.Product);
+                });
+
         }
         public Visibility IsBuyVisible => BuyCommand == null ? Visibility.Collapsed : Visibility.Visible;
         public DelegateCommand BuyCommand { get; }
@@ -68,12 +81,17 @@ namespace VendingMachine
         public Visibility IsAmountVisible => BuyCommand == null ? Visibility.Collapsed : Visibility.Visible;
         public int Amount => ProductStack.Amount;
     }
-    public class MoneyVM
+    public class MoneyVM : BindableBase
     {
-        public MoneyStack MoneyStack { get; }
-        public MoneyVM(MoneyStack moneyStack)
+        public MoneyStack MoneyStack;
+        public MoneyVM(MoneyStack moneyStack, PurchaseManager manager = null)
         {
             MoneyStack = moneyStack;
+            if (manager != null) //по умолчанию Null, если же нет, то тогда задаем DelegateCommand
+                InsertCommand = new DelegateCommand(() => {
+                    manager.InsertMoney(MoneyStack.Banknote);
+                });
+            moneyStack.PropertyChanged += (s, a) => { RaisePropertyChanged(nameof(Amount)); };
         }
         public Visibility IsInsertVisible => InsertCommand == null ? Visibility.Collapsed : Visibility.Visible;
         public DelegateCommand InsertCommand { get; }

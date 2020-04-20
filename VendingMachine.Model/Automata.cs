@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Prism.Mvvm;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace VendingMachine.Model
 {
-    public class Automata
+    public class Automata : BindableBase
     {
         public Automata()
         {
@@ -25,6 +26,27 @@ namespace VendingMachine.Model
         private readonly ObservableCollection<MoneyStack> _automataBank;
         public ReadOnlyObservableCollection<ProductStack> ProductsInAutomata { get; }
         private readonly ObservableCollection<ProductStack> _productsInAutomata;
-        public int Credit { get; }
+        //поместить купюру в отделение для соответственной купюры
+        internal void InsertBanknote(Banknote banknote)
+        {
+            _automataBank.First(ms => ms.Banknote.Equals(banknote)).PushOne();
+            Credit += banknote.Nominal;
+        }
+        //кредит
+        private int credit;
+        public int Credit
+        {
+            get { return credit; }
+            set { SetProperty(ref credit, value); }
+        }
+        internal bool BuyProduct(Product product)
+        {
+            if (Credit >= product.Price && _productsInAutomata.First(p => p.Product.Equals(product)).PullOne())
+            {
+                Credit -= product.Price;
+                return true;
+            }
+            return false;
+        }
     }
 }
