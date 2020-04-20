@@ -7,15 +7,46 @@
         mc:Ignorable="d"
         Title="UserView" Height="450" Width="800">
     <!-- Монеты/купюры -->
-    <ListBox ItemsSource="{Binding UserWallet}">
-        <ListBox.ItemTemplate>
-            <DataTemplate>
-                <StackPanel Orientation="Horizontal">
-                    <Image Width="32" Height="32" Source="{Binding Icon}"></Image>
-                    <Label Content="{Binding Name}"/>
-                    <Label Content="{Binding Amount}"/>
-                </StackPanel>
-            </DataTemplate>
-        </ListBox.ItemTemplate>
-    </ListBox>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <!--Кошелек-->
+        <DockPanel>
+            <Label DockPanel.Dock="Top" Content="Наличность пользователя"/>
+            <!--Сумма-->
+            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal">
+                <Label Content="Итоговая сумма:"/>
+                <Label Content="{Binding UserSumm}"/>
+            </StackPanel>
+            <!-- Монеты/купюры -->
+            <ListBox ItemsSource="{Binding UserWallet}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Width="32" Height="32" Source="{Binding Icon}"></Image>
+                            <Label Content="{Binding Name}"/>
+                            <Label Content="{Binding Amount}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+        <!--Покупки-->
+        <DockPanel Grid.Row="0" Grid.Column="1" >
+                <Label DockPanel.Dock="Top" Content="Корзина пользователя"/>
+                <ListBox ItemsSource="{Binding UserBuyings}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="{Binding Name}"/>
+                                <Label FontWeight="DemiBold" Content="{Binding Price}"/>
+                                <Label Content="{Binding Amount}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+    </Grid>
 </Window>
